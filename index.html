@@ -1,31 +1,31 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>?ы몴</title>
+  <title>투표</title>
   <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1 id="title">?ы몴</h1>
-      <p class="sub">?щ쾲???낅젰?섍퀬 <b id="needN">3</b>媛쒕? ?좏깮???쒖텧?섏꽭??</p>
+      <h1 id="title">투표</h1>
+      <p class="sub">사번을 입력하고 <b id="needN">3</b>개를 선택해 제출하세요.</p>
     </header>
 
     <section class="card">
-      <label class="lbl">?щ쾲</label>
+      <label class="lbl">사번</label>
       <input id="saban" type="text" inputmode="numeric" autocomplete="off"
-             placeholder="?? 123456" />
+             placeholder="예: 123456" />
     </section>
 
     <section class="card">
-      <div class="counter">?좏깮: <span id="cnt">0</span> / <span id="needN2">3</span></div>
-      <div id="options" class="options"><!-- JS ?뚮뜑 --></div>
+      <div class="counter">선택: <span id="cnt">0</span> / <span id="needN2">3</span></div>
+      <div id="options" class="options"><!-- JS 렌더 --></div>
     </section>
 
     <section class="card submit-card">
-      <button id="btnSubmit" class="btn-primary" disabled>?쒖텧</button>
+      <button id="btnSubmit" class="btn-primary">제출</button>
       <span id="status" class="status"></span>
     </section>
 
