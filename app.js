@@ -50,11 +50,6 @@ async function submit() {
   if (!uname) { setStatus("이름을 입력하세요.", "err"); return; }
   if (selected.size !== NEED) { setStatus(`${NEED}개를 선택하세요.`, "err"); return; }
 
-  // 같은 브라우저 중복 제출 방지(소프트)
-  if (localStorage.getItem("voted_" + uname)) {
-    setStatus("이미 이 기기에서 투표하셨습니다.", "err"); return;
-  }
-
   $("btnSubmit").disabled = true;
   setStatus("제출 중...", "run");
 
@@ -77,7 +72,6 @@ async function submit() {
     });
     const data = await res.json().catch(() => ({}));
     if (data.success) {
-      localStorage.setItem("voted_" + uname, "1");
       showDone();
     } else {
       setStatus("제출 실패: " + (data.message || res.status), "err");
