@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8" /><title>메일 전송 테스트</title></head>
+<body style="font-family:system-ui,'Malgun Gothic',sans-serif;font-size:20px;padding:48px;background:#0f1420;color:#e6e9ef">
+  <h2>Web3Forms 메일 테스트</h2>
+  <div id="s" style="margin-top:16px;font-size:22px">전송 중...</div>
+  <p style="color:#8a93a3;margin-top:24px">수신함: ax35121212@gmail.com (스팸함도 확인)</p>
+  <script>
+    fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        access_key: "191bf17c-54d4-485a-8157-90dbab38b255",
+        subject: "[테스트] 투표 메일 확인",
+        from_name: "AIAGENT 투표",
+        "사번": "TEST000",
+        "선택1": "김건표 : jdk 버전업 자동화",
+        "선택2": "박진현 : grep 명령어 지능화",
+        "선택3": "권희열 : 보안 취약점 식별"
+      })
+    })
+    .then(r => r.json())
+    .then(d => {
+      var el = document.getElementById("s");
+      if (d.success) { el.textContent = "✅ 전송 성공! 메일함을 확인하세요."; el.style.color = "#19c37d"; }
+      else { el.textContent = "❌ 실패: " + (d.message || "알 수 없음"); el.style.color = "#ff6b6b"; }
+    })
+    .catch(e => { var el = document.getElementById("s"); el.textContent = "❌ 오류: " + e.message; el.style.color = "#ff6b6b"; });
+  </script>
+</body>
+</html>
