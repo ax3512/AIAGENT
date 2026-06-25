@@ -37,7 +37,11 @@ function onToggle(cb, title) {
 }
 
 function refreshSubmit() {
-  $("btnSubmit").disabled = !(selected.size === NEED && $("saban").value.trim());
+  // 버튼은 항상 활성화 — 조건 검증은 제출 시 안내
+  $("btnSubmit").disabled = false;
+  const ok = selected.size === NEED && $("saban").value.trim();
+  if (ok) setStatus("", "");
+  else setStatus(`사번 입력 + ${NEED}개 선택 필요 (현재 ${selected.size}/${NEED})`, "");
 }
 $("saban").addEventListener("input", refreshSubmit);
 
@@ -101,5 +105,7 @@ function setStatus(msg, cls) {
 (function init() {
   if (!CFG || !CFG.titles) { document.body.innerHTML = "config.js 오류"; return; }
   renderOptions();
+  $("btnSubmit").disabled = false;
   $("btnSubmit").addEventListener("click", submit);
+  refreshSubmit();
 })();
