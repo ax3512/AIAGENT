@@ -39,19 +39,19 @@ function onToggle(cb, title) {
 function refreshSubmit() {
   // 버튼은 항상 활성화 — 조건 검증은 제출 시 안내
   $("btnSubmit").disabled = false;
-  const ok = selected.size === NEED && $("saban").value.trim();
+  const ok = selected.size === NEED && $("uname").value.trim();
   if (ok) setStatus("", "");
-  else setStatus(`사번 입력 + ${NEED}개 선택 필요 (현재 ${selected.size}/${NEED})`, "");
+  else setStatus(`이름 입력 + ${NEED}개 선택 필요 (현재 ${selected.size}/${NEED})`, "");
 }
-$("saban").addEventListener("input", refreshSubmit);
+$("uname").addEventListener("input", refreshSubmit);
 
 async function submit() {
-  const saban = $("saban").value.trim();
-  if (!saban) { setStatus("사번을 입력하세요.", "err"); return; }
+  const uname = $("uname").value.trim();
+  if (!uname) { setStatus("이름을 입력하세요.", "err"); return; }
   if (selected.size !== NEED) { setStatus(`${NEED}개를 선택하세요.`, "err"); return; }
 
   // 같은 브라우저 중복 제출 방지(소프트)
-  if (localStorage.getItem("voted_" + saban)) {
+  if (localStorage.getItem("voted_" + uname)) {
     setStatus("이미 이 기기에서 투표하셨습니다.", "err"); return;
   }
 
@@ -61,9 +61,9 @@ async function submit() {
   const choices = Array.from(selected);
   const payload = {
     access_key: CFG.web3key,
-    subject: "[투표] " + saban,
+    subject: "[투표] " + uname,
     from_name: "AIAGENT 투표",
-    "사번": saban,
+    "이름": uname,
     "선택1": choices[0],
     "선택2": choices[1],
     "선택3": choices[2],
@@ -77,7 +77,7 @@ async function submit() {
     });
     const data = await res.json().catch(() => ({}));
     if (data.success) {
-      localStorage.setItem("voted_" + saban, "1");
+      localStorage.setItem("voted_" + uname, "1");
       showDone();
     } else {
       setStatus("제출 실패: " + (data.message || res.status), "err");
