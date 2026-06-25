@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>투표 결과</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>투표 결과</h1>
+      <p class="sub">총 투표 인원: <b id="total">-</b>명</p>
+    </header>
+
+    <section class="card">
+      <div class="row">
+        <button id="btnReload" class="btn-ghost">새로고침</button>
+        <button id="btnCsv" class="btn-ghost">CSV 다운로드</button>
+        <span id="status" class="status"></span>
+      </div>
+      <div id="bars" class="bars"></div>
+    </section>
+
+    <p class="foot"><a href="index.html">투표 화면으로</a></p>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="results.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>투표</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 id="title">투표</h1>
+      <p class="sub">사번을 입력하고 <b id="needN">3</b>개를 선택해 제출하세요.</p>
+    </header>
+
+    <section class="card">
+      <label class="lbl">사번</label>
+      <input id="saban" type="text" inputmode="numeric" autocomplete="off"
+             placeholder="예: 123456" />
+    </section>
+
+    <section class="card">
+      <div class="counter">선택: <span id="cnt">0</span> / <span id="needN2">3</span></div>
+      <div id="options" class="options"><!-- JS 렌더 --></div>
+    </section>
+
+    <section class="card submit-card">
+      <button id="btnSubmit" class="btn-primary" disabled>제출</button>
+      <span id="status" class="status"></span>
+    </section>
+
+    <p class="foot">결과 보기: <a id="resultLink" href="results.html">results.html</a></p>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
