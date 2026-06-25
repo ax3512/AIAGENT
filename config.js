@@ -1,19 +1,16 @@
 // ============================================================
-//  투표 설정 — 여기 4곳만 수정하면 됩니다.
+//  투표 설정
 // ============================================================
 window.VOTE_CONFIG = {
-  // 1) 본인 GitHub 사용자명 / 만들 repo 이름 / 브랜치
-  owner: "ax3512",
-  repo: "AIAGENT",
-  branch: "main",
+  // Web3Forms Access Key (제출 시 이 키로 메일 발송)
+  web3key: "191bf17c-54d4-485a-8157-90dbab38b255",
+  // 결과 수신 메일(참고 표시용)
+  email: "ax35121212@gmail.com",
 
-  // 2) 투표 결과가 저장될 폴더 (repo 안에 자동 생성됨)
-  votesDir: "votes",
-
-  // 3) 반드시 선택해야 하는 개수
+  // 반드시 선택해야 하는 개수
   pickCount: 3,
 
-  // 4) 투표 제목 목록 — 이 배열만 네가 리스트업한 제목으로 교체
+  // 투표 제목 목록
   titles: [
     "김남진 : LLM Wiki 소스 분석기",
     "이태규 : IA기반 T/C 자동생성 Agent",
@@ -29,9 +26,4 @@ window.VOTE_CONFIG = {
     "윤석민 : 정산 검증 분석 자동화",
     "이현정 : 레퍼런스 개발 자동화",
   ],
-
-  // 5) 쓰기용 GitHub 토큰(base64). 발급 후 인코딩해서 붙여넣기.
-  //    PowerShell: [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("github_pat_여기에"))
-  //    (노출 감수 모드 — 누구나 소스에서 볼 수 있음에 동의함)
-  tokenB64: "",
 };
