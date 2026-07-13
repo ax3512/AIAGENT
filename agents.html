@@ -6,54 +6,51 @@
   <title>빌링개발팀 AI Agent 대시보드</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #0f1420; color: #e8ecf4; min-height: 100vh; padding: 24px 16px; }
-    .wrap { max-width: 1100px; margin: 0 auto; }
-    header { text-align: center; margin-bottom: 24px; }
-    h1 { font-size: 24px; margin-bottom: 6px; }
-    .sub { color: #9aa4b8; font-size: 13px; }
-    .category { margin-bottom: 20px; }
-    .cat-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; font-weight: 700; }
-    .cat-analysis { background: linear-gradient(90deg,#3b3f8f,#2a2d66); }
-    .cat-develop  { background: linear-gradient(90deg,#1e6e46,#154d31); }
-    .cat-test     { background: linear-gradient(90deg,#8f6a1e,#66490f); }
-    .cat-common   { background: linear-gradient(90deg,#8f2f5a,#661f3f); }
-    .cat-count { margin-left: auto; background: rgba(255,255,255,.2); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
-    .card { background: #1a2233; border: 1px solid #2a3550; border-radius: 12px; padding: 14px; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; position: relative; transition: border-color .15s, transform .15s; }
-    .card:hover { border-color: #4a83f0; transform: translateY(-2px); }
-    .card-icon { font-size: 22px; }
-    .card-title { font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 3px; }
-    .card-owner { font-size: 12px; color: #9aa4b8; }
-    .card-num { position: absolute; top: 10px; right: 12px; font-size: 11px; color: #566; }
-    .badges { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
-    .badge { font-size: 10px; padding: 2px 7px; border-radius: 8px; white-space: nowrap; }
-    .badge.v1 { background: #2d4a75; color: #9ec5ff; }
-    .badge.v2 { background: #4a2d75; color: #d0b3ff; }
-    .badge.file { background: #2d5a3a; color: #a8e6b8; }
-    .badge.none { background: #333c4f; color: #8892a6; }
+    body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #ffffff; color: #1f2633; min-height: 100vh; padding: 32px 20px; }
+    .wrap { max-width: 1400px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 32px; }
+    h1 { font-size: 30px; margin-bottom: 8px; }
+    .sub { color: #6b7688; font-size: 15px; }
+    .category { margin-bottom: 28px; }
+    .cat-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 12px; margin-bottom: 14px; font-weight: 700; font-size: 18px; color: #fff; }
+    .cat-analysis { background: linear-gradient(90deg,#5158c9,#3b3f8f); }
+    .cat-develop  { background: linear-gradient(90deg,#2a9d64,#1e6e46); }
+    .cat-test     { background: linear-gradient(90deg,#c9962e,#8f6a1e); }
+    .cat-common   { background: linear-gradient(90deg,#c94a82,#8f2f5a); }
+    .cat-count { margin-left: auto; background: rgba(255,255,255,.25); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
+    .card { background: #fff; border: 1px solid #dde3ee; border-radius: 14px; padding: 18px; cursor: pointer; display: flex; gap: 14px; align-items: flex-start; position: relative; transition: border-color .15s, transform .15s, box-shadow .15s; box-shadow: 0 1px 3px rgba(20,30,60,.06); }
+    .card:hover { border-color: #2f6fed; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(20,30,60,.12); }
+    .card-icon { font-size: 30px; }
+    .card-title { font-size: 16px; font-weight: 700; line-height: 1.45; margin-bottom: 4px; color: #1f2633; }
+    .card-owner { font-size: 14px; color: #6b7688; }
+    .card-num { position: absolute; top: 12px; right: 14px; font-size: 12px; color: #a5aec0; }
+    .badges { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+    .badge { font-size: 12px; padding: 3px 9px; border-radius: 9px; white-space: nowrap; }
+    .badge.file { background: #e2f5e8; color: #1e7a3f; }
     /* modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 10; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15,25,45,.45); z-index: 10; align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto; }
     .modal.active { display: flex; }
-    .modal-box { background: #1a2233; border: 1px solid #2a3550; border-radius: 14px; max-width: 560px; width: 100%; padding: 22px; }
-    .modal-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
-    .modal-head h2 { font-size: 17px; line-height: 1.4; flex: 1; }
-    .close { background: none; border: none; color: #9aa4b8; font-size: 24px; cursor: pointer; line-height: 1; }
-    .meta { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .meta-icon { font-size: 30px; }
-    .meta-owner { font-weight: 600; margin-bottom: 5px; }
-    .modal .badge { font-size: 12px; padding: 3px 9px; }
-    .sect { border-top: 1px solid #2a3550; padding-top: 12px; margin-top: 12px; }
-    .sect h3 { font-size: 14px; color: #9ec5ff; margin-bottom: 8px; }
-    .desc { font-size: 14px; line-height: 1.65; color: #ccd4e4; }
-    .hint { font-size: 12px; color: #8892a6; margin-bottom: 8px; }
-    .file-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #232d45; }
-    .file-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .file-size { color: #9aa4b8; font-size: 12px; }
-    .btn-dl { background: #2f6fed; color: #fff; text-decoration: none; font-size: 12px; padding: 5px 12px; border-radius: 8px; white-space: nowrap; }
-    .btn-dl:hover { background: #4a83f0; }
-    .nofile { font-size: 13px; color: #8892a6; padding: 6px 0; }
-    .foot { text-align: center; margin-top: 24px; font-size: 12px; color: #667; }
-    .foot a { color: #9ec5ff; }
+    .modal-box { background: #fff; border: 1px solid #dde3ee; border-radius: 16px; max-width: 640px; width: 100%; padding: 28px; box-shadow: 0 16px 48px rgba(20,30,60,.22); }
+    .modal-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+    .modal-head h2 { font-size: 20px; line-height: 1.4; flex: 1; }
+    .close { background: none; border: none; color: #6b7688; font-size: 28px; cursor: pointer; line-height: 1; }
+    .meta { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .meta-icon { font-size: 36px; }
+    .meta-owner { font-weight: 700; font-size: 16px; }
+    .legacy { font-size: 13px; color: #8a94a8; margin-top: 3px; }
+    .sect { border-top: 1px solid #e8edf5; padding-top: 16px; margin-top: 16px; }
+    .sect h3 { font-size: 16px; color: #2f6fed; margin-bottom: 10px; }
+    .desc { font-size: 15px; line-height: 1.7; color: #3a4356; }
+    .hint { font-size: 13px; color: #8a94a8; margin-bottom: 10px; }
+    .file-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #eef2f8; }
+    .file-name { flex: 1; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { color: #8a94a8; font-size: 13px; }
+    .btn-dl { background: #2f6fed; color: #fff; text-decoration: none; font-size: 14px; padding: 7px 16px; border-radius: 9px; white-space: nowrap; }
+    .btn-dl:hover { background: #1f5cd9; }
+    .nofile { font-size: 14px; color: #8a94a8; padding: 8px 0; }
+    .foot { text-align: center; margin-top: 32px; font-size: 13px; color: #a5aec0; }
+    .foot a { color: #2f6fed; }
   </style>
 </head>
 <body>
@@ -74,11 +71,11 @@
       </div>
       <div class="meta">
         <span id="mIcon" class="meta-icon"></span>
-        <div>
+        <div style="flex:1;">
           <div id="mOwner" class="meta-owner"></div>
-          <div id="mBadges" class="badges"></div>
+          <div id="mLegacy" class="legacy"></div>
         </div>
-        <span id="mNum" class="card-num" style="position:static; margin-left:auto;"></span>
+        <span id="mNum" class="card-num" style="position:static;"></span>
       </div>
       <div class="sect">
         <h3>📖 과제 설명</h3>
@@ -95,58 +92,60 @@
   <script>
     const OWNER = "ax3512", REPO = "AIAGENT", BRANCH = "main", DIR = "agents";
 
+    // title = 현재 투표 과제명 기준 현행화 (투표 리스트에 없는 4명은 기존 Agent명 유지)
+    // legacy = 기존 Agent명 (과제명과 다를 때 참고 표시)
     const META = {
-      1:  { icon:"📧", title:"메일 Due-Date 알람 제공 AI Agent", owner:"이성규", v1:null, v2:null,
+      1:  { icon:"📧", title:"메일 Due-Date 알람 제공 AI Agent", owner:"이성규", legacy:null,
             desc:"수신 메일에서 기한(Due-Date)을 인식해 처리 마감 전에 알람을 제공하는 Agent입니다." },
-      2:  { icon:"🛡️", title:"코드 품질향상 및 보안 준수 자동화 Agent", owner:"권희열", v1:"보안 취약점 식별", v2:null,
+      2:  { icon:"🛡️", title:"보안 취약점 식별", owner:"권희열", legacy:"코드 품질향상 및 보안 준수 자동화 Agent",
             desc:"소스 코드의 보안 취약점을 자동 식별하고 시큐어 코딩 규칙 준수 여부를 점검해 품질을 높이는 Agent입니다." },
-      3:  { icon:"🌱", title:"Spring Codebase 분석 AI Agent", owner:"김남진", v1:"LLM Wiki 소스 분석기", v2:null,
+      3:  { icon:"🌱", title:"LLM Wiki 소스 분석기", owner:"김남진", legacy:"Spring Codebase 분석 AI Agent",
             desc:"Spring 기반 코드베이스를 LLM으로 분석해 구조·호출관계를 Wiki 형태의 문서로 정리해 주는 소스 분석기입니다." },
-      4:  { icon:"📖", title:"사용자 메뉴얼 작성 Agent", owner:"문향은", v1:"사용자 메뉴얼 자동 생성 Agent", v2:null,
+      4:  { icon:"📖", title:"사용자 메뉴얼 자동 생성 Agent", owner:"문향은", legacy:"사용자 메뉴얼 작성 Agent",
             desc:"화면·기능 정보를 바탕으로 사용자 매뉴얼 초안을 자동 생성해 문서 작성 시간을 줄여주는 Agent입니다." },
-      5:  { icon:"🔍", title:"업무 지식 지존 검색 AI Agent", owner:"이태규", v1:"IA기반 T/C 자동생성 Agent", v2:null,
+      5:  { icon:"🔍", title:"IA기반 T/C 자동생성 Agent", owner:"이태규", legacy:"업무 지식 지존 검색 AI Agent",
             desc:"IA(요구사항 분석서)를 기반으로 테스트케이스를 자동 생성하고, 업무 지식(지존)을 검색·활용하는 Agent입니다." },
-      6:  { icon:"✅", title:"IA 테스트케이스 검증 AI Agent", owner:"임성식", v1:"배포 문서 기반 T/C 자동생성", v2:null,
+      6:  { icon:"✅", title:"배포 문서 기반 T/C 자동생성", owner:"임성식", legacy:"IA 테스트케이스 검증 AI Agent",
             desc:"배포 문서를 근거로 테스트케이스를 자동 생성·검증해 배포 전 테스트 누락을 방지하는 Agent입니다." },
-      7:  { icon:"🗄️", title:"개발 SQL 튜닝 및 검증 AI Agent / 운영 SR처리 Agent", owner:"김건표", v1:"jdk 버전업 자동화", v2:null,
-            desc:"JDK 버전업 시 필요한 소스 수정 포인트를 자동 식별·변환하는 버전업 자동화 과제입니다. (기존: SQL 튜닝/SR 처리 Agent)" },
-      8:  { icon:"📋", title:"개발 요구사항 영향도 검토 Agent", owner:"김예솔", v1:null, v2:null,
+      7:  { icon:"🗄️", title:"jdk 버전업 자동화", owner:"김건표", legacy:"개발 SQL 튜닝 및 검증 AI Agent / 운영 SR처리 Agent",
+            desc:"JDK 버전업 시 필요한 소스 수정 포인트를 자동 식별·변환하는 버전업 자동화 과제입니다." },
+      8:  { icon:"📋", title:"개발 요구사항 영향도 검토 Agent", owner:"김예솔", legacy:null,
             desc:"개발 요구사항이 기존 시스템에 미치는 영향 범위를 자동 검토해 주는 Agent입니다." },
-      9:  { icon:"🔎", title:"영향도 분석 AI Agent (grep-AI)", owner:"박진현", v1:"grep 명령어 지능화", v2:null,
+      9:  { icon:"🔎", title:"grep 명령어 지능화", owner:"박진현", legacy:"영향도 분석 AI Agent (grep-AI)",
             desc:"grep 검색을 지능화해 소스 영향도 분석을 빠르고 정확하게 수행하는 grep-AI Agent입니다." },
-      10: { icon:"🗃️", title:"DB 신규 및 변경신청 및 인터페이스 정의서 생성 AI Agent", owner:"임근혜", v1:"동료 검토 및 DB/WSDL 산출물 자동 생성", v2:null,
+      10: { icon:"🗃️", title:"동료 검토 및 DB/WSDL 산출물 자동 생성", owner:"임근혜", legacy:"DB 신규 및 변경신청 및 인터페이스 정의서 생성 AI Agent",
             desc:"동료 검토를 지원하고 DB 변경신청서·WSDL 인터페이스 정의서 등 산출물을 자동 생성하는 Agent입니다." },
-      11: { icon:"📱", title:"유무선 정산 신규 상품 개발 자동화", owner:"임진환", v1:null, v2:"레퍼런스 개발 자동화 플랫폼",
+      11: { icon:"📱", title:"레퍼런스 개발 자동화 플랫폼", owner:"임진환", legacy:"유무선 정산 신규 상품 개발 자동화",
             desc:"유무선 정산 신규 상품(레퍼런스) 개발을 자동화하는 플랫폼 과제입니다. 개발 단계별 산출물 생성을 지원합니다." },
-      12: { icon:"🏷️", title:"조정사유(청구할인) 코드 레퍼런스 생성 및 검증 AI Agent", owner:"지수환", v1:"레퍼런스 개발 자동화", v2:null,
+      12: { icon:"🏷️", title:"레퍼런스 개발 자동화", owner:"지수환", legacy:"조정사유(청구할인) 코드 레퍼런스 생성 및 검증 AI Agent",
             desc:"조정사유(청구할인) 코드 레퍼런스를 자동 생성·검증하는 레퍼런스 개발 자동화 Agent입니다." },
-      13: { icon:"⚙️", title:"정기 운영작업 쿼리 생성 및 자료추출 AI Agent", owner:"권혜원", v1:null, v2:null,
+      13: { icon:"⚙️", title:"정기 운영작업 쿼리 생성 및 자료추출 AI Agent", owner:"권혜원", legacy:null,
             desc:"정기 운영작업에 필요한 쿼리를 자동 생성하고 자료 추출을 수행하는 Agent입니다." },
-      14: { icon:"📚", title:"IA기반 KMS 지식 현행화 Agent", owner:"김자은", v1:"요온 지식 자산화", v2:null,
+      14: { icon:"📚", title:"요온 지식 자산화", owner:"김자은", legacy:"IA기반 KMS 지식 현행화 Agent",
             desc:"요온 업무 지식을 자산화하고 IA를 기반으로 KMS 지식을 최신 상태로 현행화하는 Agent입니다." },
-      15: { icon:"💡", title:"Bill 개발 도우미 AI Agent", owner:"김재혁", v1:"레퍼런스 개발 자동화", v2:null,
+      15: { icon:"💡", title:"레퍼런스 개발 자동화", owner:"김재혁", legacy:"Bill 개발 도우미 AI Agent",
             desc:"Bill 개발 업무를 보조하며 레퍼런스 개발을 자동화하는 개발 도우미 Agent입니다." },
-      16: { icon:"📊", title:"IA요구사항 분석을 통한 상품 레퍼런스 생성 및 검증 AI Agent", owner:"박래준", v1:null, v2:"IA 산출물 자동 생성 Agent",
+      16: { icon:"📊", title:"IA 산출물 자동 생성 Agent", owner:"박래준", legacy:"IA요구사항 분석을 통한 상품 레퍼런스 생성 및 검증 AI Agent",
             desc:"IA 요구사항을 분석해 상품 레퍼런스와 IA 산출물을 자동 생성·검증하는 Agent입니다." },
-      17: { icon:"✏️", title:"IA 작성 지원 AI Agent", owner:"박예겸", v1:null, v2:"배포 누락 방지 Agent",
-            desc:"배포 대상 파일·절차를 자동 점검해 배포 누락을 방지하는 Agent 과제입니다. (기존: IA 작성 지원)" },
-      18: { icon:"📑", title:"비바체 내 신규요금제 정산기준정보 엑셀 자동 검증 에이전트", owner:"김무성", v1:null, v2:null,
+      17: { icon:"✏️", title:"배포 누락 방지 Agent", owner:"박예겸", legacy:"IA 작성 지원 AI Agent",
+            desc:"배포 대상 파일·절차를 자동 점검해 배포 누락을 방지하는 Agent 과제입니다." },
+      18: { icon:"📑", title:"비바체 내 신규요금제 정산기준정보 엑셀 자동 검증 에이전트", owner:"김무성", legacy:null,
             desc:"비바체의 신규 요금제 정산기준정보 엑셀을 자동 검증하는 Agent입니다." },
-      19: { icon:"🏆", title:"품질점검 Agent", owner:"김현아", v1:null, v2:"SQL 튜닝 지원 Agent",
-            desc:"SQL 튜닝 포인트를 자동 분석·제안해 개발 품질을 높이는 SQL 튜닝 지원 Agent 과제입니다. (기존: 품질점검 Agent)" },
-      20: { icon:"🗂️", title:"AI 기반 데이터베이스 테이블 자동 추출 에이전트", owner:"박세원", v1:null, v2:"정산 특화 산출물 생성 간소화 Agent",
-            desc:"정산 업무에 특화된 산출물 생성을 간소화하는 Agent 과제입니다. (기존: DB 테이블 자동 추출)" },
-      21: { icon:"🤖", title:"UI & 배치 TC TEST FULL 자동화 (MCP 기반) AI Agent", owner:"이우성", v1:null, v2:"UI 테스트 자동화 / TC 생성",
+      19: { icon:"🏆", title:"SQL 튜닝 지원 Agent", owner:"김현아", legacy:"품질점검 Agent",
+            desc:"SQL 튜닝 포인트를 자동 분석·제안해 개발 품질을 높이는 SQL 튜닝 지원 Agent 과제입니다." },
+      20: { icon:"🗂️", title:"정산 특화 산출물 생성 간소화 Agent", owner:"박세원", legacy:"AI 기반 데이터베이스 테이블 자동 추출 에이전트",
+            desc:"정산 업무에 특화된 산출물 생성을 간소화하는 Agent 과제입니다." },
+      21: { icon:"🤖", title:"UI 테스트 자동화 / TC 생성", owner:"이우성", legacy:"UI & 배치 TC TEST FULL 자동화 (MCP 기반) AI Agent",
             desc:"MCP 기반으로 UI 테스트와 배치 TC 생성·실행을 풀 자동화하는 Agent입니다." },
-      22: { icon:"🔄", title:"반복 업무 자동화 처리 통합 Agent", owner:"이재현", v1:null, v2:"SR 처리 개인 비서 - LLM Wiki 포함",
+      22: { icon:"🔄", title:"SR 처리 개인 비서 - LLM Wiki 포함", owner:"이재현", legacy:"반복 업무 자동화 처리 통합 Agent",
             desc:"SR 처리를 돕는 개인 비서 Agent 과제로, LLM Wiki 지식 검색을 포함해 반복 업무를 통합 자동화합니다." },
-      23: { icon:"📝", title:"정기/비정기 정산레퍼런스 추가 대상 검증 및 생성 쿼리 작성, 산출물 자동화 Agent", owner:"이현정", v1:"레퍼런스 개발 자동화", v2:null,
+      23: { icon:"📝", title:"레퍼런스 개발 자동화", owner:"이현정", legacy:"정기/비정기 정산레퍼런스 추가 대상 검증 및 생성 쿼리 작성, 산출물 자동화 Agent",
             desc:"정기/비정기 정산 레퍼런스 추가 대상을 검증하고 생성 쿼리·산출물 작성을 자동화하는 Agent입니다." },
-      24: { icon:"🧾", title:"청구서 파트 당월 개발과제 기준 정보 검증 도우미 Agent : AI게 맞아!", owner:"조영래", v1:null, v2:"레퍼런스 개발 자동화",
+      24: { icon:"🧾", title:"레퍼런스 개발 자동화", owner:"조영래", legacy:"청구서 파트 당월 개발과제 기준 정보 검증 도우미 Agent : AI게 맞아!",
             desc:"청구서 파트의 당월 개발과제 기준 정보를 검증하고 레퍼런스 개발을 자동화하는 Agent 과제입니다." },
-      25: { icon:"💻", title:"넥사크로 Code AI Agent", owner:"한재윤", v1:null, v2:"SVN 변경 사항 식별 및 AI 기반 Check List 검증 자동화",
-            desc:"SVN 변경 사항을 자동 식별하고 AI 기반 체크리스트로 검증을 자동화하는 과제입니다. (기존: 넥사크로 Code Agent)" },
-      26: { icon:"🧮", title:"정산 검증 분석 자동화 Agent", owner:"윤석민", v1:"정산 검증 분석 자동화", v2:null,
+      25: { icon:"💻", title:"SVN 변경 사항 식별 및 AI 기반 Check List 검증 자동화", owner:"한재윤", legacy:"넥사크로 Code AI Agent",
+            desc:"SVN 변경 사항을 자동 식별하고 AI 기반 체크리스트로 검증을 자동화하는 과제입니다." },
+      26: { icon:"🧮", title:"정산 검증 분석 자동화", owner:"윤석민", legacy:null,
             desc:"정산 결과 검증·분석 작업을 자동화하는 Agent 과제입니다." },
     };
 
@@ -162,24 +161,18 @@
     function fmtSize(b) { return b >= 1048576 ? (b/1048576).toFixed(1)+" MB" : (b/1024).toFixed(1)+" KB"; }
     function rawUrl(path) { return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/` + path.split("/").map(encodeURIComponent).join("/"); }
 
-    function badgeHtml(m, num, full) {
-      let h = "";
-      if (!full && (sharedFiles[num]||[]).length) h += `<span class="badge file">📦 자료</span>`;
-      return h;
-    }
-
     function render() {
       document.getElementById("board").innerHTML = CATEGORIES.map(c => `
         <div class="category">
           <div class="cat-head ${c.cls}"><span>${c.icon}</span><span>${c.name}</span><span class="cat-count">${c.nums.length}</span></div>
           <div class="grid">
-            ${c.nums.map(n => { const m = META[n]; return `
+            ${c.nums.map(n => { const m = META[n]; const hasFile = (sharedFiles[n]||[]).length > 0; return `
               <div class="card" onclick="openModal(${n})">
                 <div class="card-icon">${m.icon}</div>
                 <div style="flex:1; min-width:0;">
                   <div class="card-title">${m.title}</div>
                   <div class="card-owner">${m.owner}</div>
-                  <div class="badges">${badgeHtml(m, n, false)}</div>
+                  ${hasFile ? '<div class="badges"><span class="badge file">📦 자료</span></div>' : ''}
                 </div>
                 <span class="card-num">#${n}</span>
               </div>`; }).join("")}
@@ -192,8 +185,8 @@
       document.getElementById("mTitle").textContent = m.title;
       document.getElementById("mIcon").textContent = m.icon;
       document.getElementById("mOwner").textContent = "담당: " + m.owner;
+      document.getElementById("mLegacy").textContent = m.legacy ? "기존 Agent: " + m.legacy : "";
       document.getElementById("mNum").textContent = "#" + n;
-      document.getElementById("mBadges").innerHTML = badgeHtml(m, n, true);
       document.getElementById("mDesc").textContent = m.desc;
       const files = sharedFiles[n] || [];
       document.getElementById("mFiles").innerHTML = files.length
