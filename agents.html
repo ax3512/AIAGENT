@@ -66,7 +66,7 @@
   <div class="wrap">
     <header>
       <h1>🤖 빌링서비스2팀 AI Agent 대시보드 <span class="ver">v1.0</span></h1>
-      <p class="sub">총 26개 Agent · 카드를 누르면 과제 설명과 공유 자료를 볼 수 있습니다</p>
+      <p class="sub">총 24개 Agent · 카드를 누르면 과제 설명과 공유 자료를 볼 수 있습니다</p>
       <div class="edit-bar">
         <button id="editBtn" class="cbtn cbtn-desc" onclick="toggleEdit()">✏️ 제목 편집</button>
         <button id="saveBtn" class="cbtn cbtn-dl" style="display:none" onclick="saveMeta()">💾 저장</button>
@@ -96,9 +96,14 @@
         <p id="mDesc" class="desc"></p>
       </div>
       <div class="sect">
-        <h3>📦 공유 자료 다운로드</h3>
-        <p class="hint">파일 업로드는 사내 팀 대시보드에서 할 수 있습니다. 여기서는 다운로드만 지원합니다.</p>
+        <h3>📦 공유 자료</h3>
         <div id="mFiles"><div class="nofile">파일 목록 확인 중...</div></div>
+        <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+          <button class="cbtn cbtn-dl" onclick="pickUpload()">📎 파일 업로드</button>
+          <span id="upStatus" class="hint" style="margin:0;"></span>
+          <input type="file" id="upInput" style="display:none" onchange="uploadFile(this.files[0]); this.value='';" />
+        </div>
+        <p class="hint" style="margin-top:6px;">업로드하면 GitHub에 저장되어 누구나 다운로드할 수 있습니다 (4MB 이하).</p>
       </div>
     </div>
   </div>
@@ -133,8 +138,6 @@
             desc:"유무선 정산 신규 상품(레퍼런스) 개발을 자동화하는 플랫폼 과제입니다. 개발 단계별 산출물 생성을 지원합니다." },
       12: { icon:"🏷️", title:"레퍼런스 개발 자동화", owner:"지수환", legacy:"조정사유(청구할인) 코드 레퍼런스 생성 및 검증 AI Agent",
             desc:"조정사유(청구할인) 코드 레퍼런스를 자동 생성·검증하는 레퍼런스 개발 자동화 Agent입니다." },
-      13: { icon:"⚙️", title:"정기 운영작업 쿼리 생성 및 자료추출 AI Agent", owner:"권혜원", legacy:null,
-            desc:"정기 운영작업에 필요한 쿼리를 자동 생성하고 자료 추출을 수행하는 Agent입니다." },
       14: { icon:"📚", title:"요온 지식 자산화", owner:"김자은", legacy:"IA기반 KMS 지식 현행화 Agent",
             desc:"요온 업무 지식을 자산화하고 IA를 기반으로 KMS 지식을 최신 상태로 현행화하는 Agent입니다." },
       15: { icon:"💡", title:"레퍼런스 개발 자동화", owner:"김재혁", legacy:"Bill 개발 도우미 AI Agent",
@@ -143,8 +146,6 @@
             desc:"IA 요구사항을 분석해 상품 레퍼런스와 IA 산출물을 자동 생성·검증하는 Agent입니다." },
       17: { icon:"✏️", title:"배포 누락 방지 Agent", owner:"박예겸", legacy:"IA 작성 지원 AI Agent",
             desc:"배포 대상 파일·절차를 자동 점검해 배포 누락을 방지하는 Agent 과제입니다." },
-      18: { icon:"📑", title:"비바체 내 신규요금제 정산기준정보 엑셀 자동 검증 에이전트", owner:"김무성", legacy:null,
-            desc:"비바체의 신규 요금제 정산기준정보 엑셀을 자동 검증하는 Agent입니다." },
       19: { icon:"🏆", title:"SQL 튜닝 지원 Agent", owner:"김현아", legacy:"품질점검 Agent",
             desc:"SQL 튜닝 포인트를 자동 분석·제안해 개발 품질을 높이는 SQL 튜닝 지원 Agent 과제입니다." },
       20: { icon:"🗂️", title:"정산 특화 산출물 생성 간소화 Agent", owner:"박세원", legacy:"AI 기반 데이터베이스 테이블 자동 추출 에이전트",
@@ -165,8 +166,8 @@
 
     const CATEGORIES = [
       { cls:"cat-analysis", icon:"📋", name:"분석 Agent", nums:[3,8,9,16,17,20] },
-      { cls:"cat-develop",  icon:"🔧", name:"개발 Agent", nums:[2,4,7,10,11,12,13,15,22,23,25] },
-      { cls:"cat-test",     icon:"🧪", name:"테스트 Agent", nums:[6,18,19,21,24,26] },
+      { cls:"cat-develop",  icon:"🔧", name:"개발 Agent", nums:[2,4,7,10,11,12,15,22,23,25] },
+      { cls:"cat-test",     icon:"🧪", name:"테스트 Agent", nums:[6,19,21,24,26] },
       { cls:"cat-common",   icon:"🔀", name:"공통 / 운영 지원 Agent", nums:[1,5,14] },
     ];
 
@@ -200,6 +201,8 @@
 
     function openModal(n) {
       if (editMode) return; // 편집 중에는 모달 비활성
+      currentModalAgent = n;
+      document.getElementById("upStatus").textContent = "";
       const m = META[n];
       document.getElementById("mTitle").textContent = m.title;
       document.getElementById("mIcon").textContent = m.icon;
@@ -272,39 +275,59 @@
 
     function cancelEdit() { exitEdit(); }
 
+    const PROXY = "https://bill2-agent-proxy.netlify.app/.netlify/functions";
+
     async function saveMeta() {
       // 화면에서 수정된 제목 수집
       document.querySelectorAll(".card-title[data-num]").forEach(el => {
         const t = el.textContent.trim();
         if (t) META[el.dataset.num].title = t;
       });
-
-      let token = sessionStorage.getItem("gh_edit_token") || "";
-      if (!token) token = (prompt("관리자용 GitHub 토큰을 입력하세요 (이 브라우저 세션에만 유지)") || "").trim();
-      if (!token) return;
-
-      const payload = {};
-      for (const [n, m] of Object.entries(META)) payload[n] = { title: m.title };
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-      const api = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${META_PATH}`;
-      const headers = { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" };
+      const titles = {};
+      for (const [n, m] of Object.entries(META)) titles[n] = { title: m.title };
 
       try {
-        let sha = null;
-        const chk = await fetch(`${api}?ref=${BRANCH}`, { headers });
-        if (chk.ok) sha = (await chk.json()).sha;
-        const body = { message: "update agent titles", content, branch: BRANCH };
-        if (sha) body.sha = sha;
-        const put = await fetch(api, { method: "PUT", headers, body: JSON.stringify(body) });
-        if (put.ok) {
-          sessionStorage.setItem("gh_edit_token", token);
+        const res = await fetch(`${PROXY}/save-meta`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ titles }),
+        });
+        const data = await res.json();
+        if (data.success) {
           alert("저장 완료! 다른 사람 화면에는 잠시 후 반영됩니다.");
           exitEdit();
         } else {
-          sessionStorage.removeItem("gh_edit_token");
-          alert("저장 실패: " + ((await put.json()).message || put.status));
+          alert("저장 실패: " + (data.error || res.status));
         }
       } catch (e) { alert("저장 오류: " + e.message); }
+    }
+
+    // ===== 파일 업로드 (프록시 경유, 무입력) =====
+    let currentModalAgent = null;
+
+    function pickUpload() { document.getElementById("upInput").click(); }
+
+    async function uploadFile(file) {
+      if (!file || currentModalAgent == null) return;
+      const st = document.getElementById("upStatus");
+      if (file.size > 4 * 1024 * 1024) { st.textContent = "4MB 이하 파일만 업로드할 수 있습니다."; return; }
+      st.textContent = "업로드 중...";
+      try {
+        const buf = await file.arrayBuffer();
+        let bin = ""; const bytes = new Uint8Array(buf);
+        for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+        const res = await fetch(`${PROXY}/upload`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ num: currentModalAgent, name: file.name, content: btoa(bin) }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          sharedFiles = {}; await loadFiles();
+          openModal(currentModalAgent);
+          st.textContent = "업로드 완료!";
+        } else { st.textContent = "실패: " + (data.error || res.status); }
+      } catch (e) { st.textContent = "오류: " + e.message; }
     }
 
     render();
