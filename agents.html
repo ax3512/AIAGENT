@@ -244,8 +244,13 @@
 
     async function loadMeta() {
       try {
-        const res = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${META_PATH}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) return;
+        // contents API 는 CDN 캐시가 없어 저장 직후에도 최신 제목을 읽는다
+        let res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${META_PATH}?ref=${BRANCH}&t=${Date.now()}`,
+          { headers: { Accept: "application/vnd.github.raw" }, cache: "no-store" });
+        if (!res.ok) { // API 한도 초과 시 raw 로 폴백
+          res = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${META_PATH}?t=${Date.now()}`, { cache: "no-store" });
+          if (!res.ok) return;
+        }
         const saved = await res.json();
         for (const [n, v] of Object.entries(saved)) {
           if (META[n] && v.title) META[n].title = v.title;
