@@ -3,26 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>빌링개발팀 AI Agent 자료실</title>
+  <title>빌링개발팀 AI Agent 대시보드</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #0f1420; color: #e8ecf4; min-height: 100vh; padding: 24px 16px; }
-    .wrap { max-width: 760px; margin: 0 auto; }
+    .wrap { max-width: 1100px; margin: 0 auto; }
     header { text-align: center; margin-bottom: 24px; }
-    h1 { font-size: 22px; margin-bottom: 6px; }
+    h1 { font-size: 24px; margin-bottom: 6px; }
     .sub { color: #9aa4b8; font-size: 13px; }
-    .card { background: #1a2233; border: 1px solid #2a3550; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
-    .agent-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .agent-num { background: #2a3550; color: #9ec5ff; font-size: 12px; padding: 2px 8px; border-radius: 8px; }
-    .agent-name { font-weight: 600; font-size: 15px; flex: 1; }
-    .agent-owner { color: #9aa4b8; font-size: 13px; }
-    .file-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #2a3550; }
-    .file-name { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .category { margin-bottom: 20px; }
+    .cat-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; font-weight: 700; }
+    .cat-analysis { background: linear-gradient(90deg,#3b3f8f,#2a2d66); }
+    .cat-develop  { background: linear-gradient(90deg,#1e6e46,#154d31); }
+    .cat-test     { background: linear-gradient(90deg,#8f6a1e,#66490f); }
+    .cat-common   { background: linear-gradient(90deg,#8f2f5a,#661f3f); }
+    .cat-count { margin-left: auto; background: rgba(255,255,255,.2); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+    .card { background: #1a2233; border: 1px solid #2a3550; border-radius: 12px; padding: 14px; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; position: relative; transition: border-color .15s, transform .15s; }
+    .card:hover { border-color: #4a83f0; transform: translateY(-2px); }
+    .card-icon { font-size: 22px; }
+    .card-title { font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 3px; }
+    .card-owner { font-size: 12px; color: #9aa4b8; }
+    .card-num { position: absolute; top: 10px; right: 12px; font-size: 11px; color: #566; }
+    .badges { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .badge { font-size: 10px; padding: 2px 7px; border-radius: 8px; white-space: nowrap; }
+    .badge.v1 { background: #2d4a75; color: #9ec5ff; }
+    .badge.v2 { background: #4a2d75; color: #d0b3ff; }
+    .badge.file { background: #2d5a3a; color: #a8e6b8; }
+    .badge.none { background: #333c4f; color: #8892a6; }
+    /* modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 10; align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto; }
+    .modal.active { display: flex; }
+    .modal-box { background: #1a2233; border: 1px solid #2a3550; border-radius: 14px; max-width: 560px; width: 100%; padding: 22px; }
+    .modal-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .modal-head h2 { font-size: 17px; line-height: 1.4; flex: 1; }
+    .close { background: none; border: none; color: #9aa4b8; font-size: 24px; cursor: pointer; line-height: 1; }
+    .meta { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .meta-icon { font-size: 30px; }
+    .meta-owner { font-weight: 600; margin-bottom: 5px; }
+    .modal .badge { font-size: 12px; padding: 3px 9px; }
+    .sect { border-top: 1px solid #2a3550; padding-top: 12px; margin-top: 12px; }
+    .sect h3 { font-size: 14px; color: #9ec5ff; margin-bottom: 8px; }
+    .desc { font-size: 14px; line-height: 1.65; color: #ccd4e4; }
+    .hint { font-size: 12px; color: #8892a6; margin-bottom: 8px; }
+    .file-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #232d45; }
+    .file-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .file-size { color: #9aa4b8; font-size: 12px; }
-    .btn-dl { background: #2f6fed; color: #fff; text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 8px; white-space: nowrap; }
+    .btn-dl { background: #2f6fed; color: #fff; text-decoration: none; font-size: 12px; padding: 5px 12px; border-radius: 8px; white-space: nowrap; }
     .btn-dl:hover { background: #4a83f0; }
-    .empty, .loading, .error { text-align: center; color: #9aa4b8; padding: 40px 0; }
-    .error { color: #e08c8c; }
+    .nofile { font-size: 13px; color: #8892a6; padding: 6px 0; }
     .foot { text-align: center; margin-top: 24px; font-size: 12px; color: #667; }
     .foot a { color: #9ec5ff; }
   </style>
@@ -30,77 +59,168 @@
 <body>
   <div class="wrap">
     <header>
-      <h1>📦 빌링개발팀 AI Agent 자료실</h1>
-      <p class="sub">팀원들이 공유한 Agent 파일을 다운로드할 수 있습니다. 업로드는 팀 대시보드에서 하세요.</p>
+      <h1>🤖 빌링개발팀 AI Agent 대시보드</h1>
+      <p class="sub">총 26개 Agent · 카드를 누르면 과제 설명과 공유 자료를 볼 수 있습니다 · 파일 업로드는 팀 대시보드에서</p>
     </header>
-    <div id="list"><div class="loading">파일 목록 불러오는 중...</div></div>
+    <div id="board"></div>
     <p class="foot">투표 페이지: <a href="index.html">바로가기</a></p>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2 id="mTitle"></h2>
+        <button class="close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="meta">
+        <span id="mIcon" class="meta-icon"></span>
+        <div>
+          <div id="mOwner" class="meta-owner"></div>
+          <div id="mBadges" class="badges"></div>
+        </div>
+        <span id="mNum" class="card-num" style="position:static; margin-left:auto;"></span>
+      </div>
+      <div class="sect">
+        <h3>📖 과제 설명</h3>
+        <p id="mDesc" class="desc"></p>
+      </div>
+      <div class="sect">
+        <h3>📦 공유 자료 다운로드</h3>
+        <p class="hint">파일 업로드는 사내 팀 대시보드에서 할 수 있습니다. 여기서는 다운로드만 지원합니다.</p>
+        <div id="mFiles"><div class="nofile">파일 목록 확인 중...</div></div>
+      </div>
+    </div>
   </div>
 
   <script>
     const OWNER = "ax3512", REPO = "AIAGENT", BRANCH = "main", DIR = "agents";
-    // 대시보드와 동일한 Agent 이름/담당자
-    const AGENT_META = {
-      1:"메일 Due-Date 알람 제공 AI Agent|이성규", 2:"코드 품질향상 및 보안 준수 자동화 Agent|권희열",
-      3:"Spring Codebase 분석 AI Agent|김남진", 4:"사용자 메뉴얼 작성 Agent|문향은",
-      5:"업무 지식 지존 검색 AI Agent|이태규", 6:"IA 테스트케이스 검증 AI Agent|임성식",
-      7:"개발 SQL 튜닝 및 검증 AI Agent / 운영 SR처리 Agent|김건표", 8:"개발 요구사항 영향도 검토 Agent|김예솔",
-      9:"영향도 분석 AI Agent (grep-AI)|박진현", 10:"DB 신규 및 변경신청 및 인터페이스 정의서 생성 AI Agent|임근혜",
-      11:"유무선 정산 신규 상품 개발 자동화|임진환", 12:"조정사유(청구할인) 코드 레퍼런스 생성 및 검증 AI Agent|지수환",
-      13:"정기 운영작업 쿼리 생성 및 자료추출 AI Agent|권혜원", 14:"IA기반 KMS 지식 현행화 Agent|김자은",
-      15:"Bill 개발 도우미 AI Agent|김재혁", 16:"IA요구사항 분석을 통한 상품 레퍼런스 생성 및 검증 AI Agent|박래준",
-      17:"IA 작성 지원 AI Agent|박예겸", 18:"비바체 내 신규요금제 정산기준정보 엑셀 자동 검증 에이전트|김무성",
-      19:"품질점검 Agent|김현아", 20:"AI 기반 데이터베이스 테이블 자동 추출 에이전트|박세원",
-      21:"UI & 배치 TC TEST FULL 자동화 (MCP 기반) AI Agent|이우성", 22:"반복 업무 자동화 처리 통합 Agent|이재현",
-      23:"정기/비정기 정산레퍼런스 추가 대상 검증 및 생성 쿼리 작성, 산출물 자동화 Agent|이현정",
-      24:"청구서 파트 당월 개발과제 기준 정보 검증 도우미 Agent : AI게 맞아!|조영래",
-      25:"넥사크로 Code AI Agent|한재윤", 26:"정산 검증 분석 자동화 Agent|윤석민",
+
+    const META = {
+      1:  { icon:"📧", title:"메일 Due-Date 알람 제공 AI Agent", owner:"이성규", v1:null, v2:null,
+            desc:"수신 메일에서 기한(Due-Date)을 인식해 처리 마감 전에 알람을 제공하는 Agent입니다." },
+      2:  { icon:"🛡️", title:"코드 품질향상 및 보안 준수 자동화 Agent", owner:"권희열", v1:"보안 취약점 식별", v2:null,
+            desc:"소스 코드의 보안 취약점을 자동 식별하고 시큐어 코딩 규칙 준수 여부를 점검해 품질을 높이는 Agent입니다." },
+      3:  { icon:"🌱", title:"Spring Codebase 분석 AI Agent", owner:"김남진", v1:"LLM Wiki 소스 분석기", v2:null,
+            desc:"Spring 기반 코드베이스를 LLM으로 분석해 구조·호출관계를 Wiki 형태의 문서로 정리해 주는 소스 분석기입니다." },
+      4:  { icon:"📖", title:"사용자 메뉴얼 작성 Agent", owner:"문향은", v1:"사용자 메뉴얼 자동 생성 Agent", v2:null,
+            desc:"화면·기능 정보를 바탕으로 사용자 매뉴얼 초안을 자동 생성해 문서 작성 시간을 줄여주는 Agent입니다." },
+      5:  { icon:"🔍", title:"업무 지식 지존 검색 AI Agent", owner:"이태규", v1:"IA기반 T/C 자동생성 Agent", v2:null,
+            desc:"IA(요구사항 분석서)를 기반으로 테스트케이스를 자동 생성하고, 업무 지식(지존)을 검색·활용하는 Agent입니다." },
+      6:  { icon:"✅", title:"IA 테스트케이스 검증 AI Agent", owner:"임성식", v1:"배포 문서 기반 T/C 자동생성", v2:null,
+            desc:"배포 문서를 근거로 테스트케이스를 자동 생성·검증해 배포 전 테스트 누락을 방지하는 Agent입니다." },
+      7:  { icon:"🗄️", title:"개발 SQL 튜닝 및 검증 AI Agent / 운영 SR처리 Agent", owner:"김건표", v1:"jdk 버전업 자동화", v2:null,
+            desc:"JDK 버전업 시 필요한 소스 수정 포인트를 자동 식별·변환하는 버전업 자동화 과제입니다. (기존: SQL 튜닝/SR 처리 Agent)" },
+      8:  { icon:"📋", title:"개발 요구사항 영향도 검토 Agent", owner:"김예솔", v1:null, v2:null,
+            desc:"개발 요구사항이 기존 시스템에 미치는 영향 범위를 자동 검토해 주는 Agent입니다." },
+      9:  { icon:"🔎", title:"영향도 분석 AI Agent (grep-AI)", owner:"박진현", v1:"grep 명령어 지능화", v2:null,
+            desc:"grep 검색을 지능화해 소스 영향도 분석을 빠르고 정확하게 수행하는 grep-AI Agent입니다." },
+      10: { icon:"🗃️", title:"DB 신규 및 변경신청 및 인터페이스 정의서 생성 AI Agent", owner:"임근혜", v1:"동료 검토 및 DB/WSDL 산출물 자동 생성", v2:null,
+            desc:"동료 검토를 지원하고 DB 변경신청서·WSDL 인터페이스 정의서 등 산출물을 자동 생성하는 Agent입니다." },
+      11: { icon:"📱", title:"유무선 정산 신규 상품 개발 자동화", owner:"임진환", v1:null, v2:"레퍼런스 개발 자동화 플랫폼",
+            desc:"유무선 정산 신규 상품(레퍼런스) 개발을 자동화하는 플랫폼 과제입니다. 개발 단계별 산출물 생성을 지원합니다." },
+      12: { icon:"🏷️", title:"조정사유(청구할인) 코드 레퍼런스 생성 및 검증 AI Agent", owner:"지수환", v1:"레퍼런스 개발 자동화", v2:null,
+            desc:"조정사유(청구할인) 코드 레퍼런스를 자동 생성·검증하는 레퍼런스 개발 자동화 Agent입니다." },
+      13: { icon:"⚙️", title:"정기 운영작업 쿼리 생성 및 자료추출 AI Agent", owner:"권혜원", v1:null, v2:null,
+            desc:"정기 운영작업에 필요한 쿼리를 자동 생성하고 자료 추출을 수행하는 Agent입니다." },
+      14: { icon:"📚", title:"IA기반 KMS 지식 현행화 Agent", owner:"김자은", v1:"요온 지식 자산화", v2:null,
+            desc:"요온 업무 지식을 자산화하고 IA를 기반으로 KMS 지식을 최신 상태로 현행화하는 Agent입니다." },
+      15: { icon:"💡", title:"Bill 개발 도우미 AI Agent", owner:"김재혁", v1:"레퍼런스 개발 자동화", v2:null,
+            desc:"Bill 개발 업무를 보조하며 레퍼런스 개발을 자동화하는 개발 도우미 Agent입니다." },
+      16: { icon:"📊", title:"IA요구사항 분석을 통한 상품 레퍼런스 생성 및 검증 AI Agent", owner:"박래준", v1:null, v2:"IA 산출물 자동 생성 Agent",
+            desc:"IA 요구사항을 분석해 상품 레퍼런스와 IA 산출물을 자동 생성·검증하는 Agent입니다." },
+      17: { icon:"✏️", title:"IA 작성 지원 AI Agent", owner:"박예겸", v1:null, v2:"배포 누락 방지 Agent",
+            desc:"배포 대상 파일·절차를 자동 점검해 배포 누락을 방지하는 Agent 과제입니다. (기존: IA 작성 지원)" },
+      18: { icon:"📑", title:"비바체 내 신규요금제 정산기준정보 엑셀 자동 검증 에이전트", owner:"김무성", v1:null, v2:null,
+            desc:"비바체의 신규 요금제 정산기준정보 엑셀을 자동 검증하는 Agent입니다." },
+      19: { icon:"🏆", title:"품질점검 Agent", owner:"김현아", v1:null, v2:"SQL 튜닝 지원 Agent",
+            desc:"SQL 튜닝 포인트를 자동 분석·제안해 개발 품질을 높이는 SQL 튜닝 지원 Agent 과제입니다. (기존: 품질점검 Agent)" },
+      20: { icon:"🗂️", title:"AI 기반 데이터베이스 테이블 자동 추출 에이전트", owner:"박세원", v1:null, v2:"정산 특화 산출물 생성 간소화 Agent",
+            desc:"정산 업무에 특화된 산출물 생성을 간소화하는 Agent 과제입니다. (기존: DB 테이블 자동 추출)" },
+      21: { icon:"🤖", title:"UI & 배치 TC TEST FULL 자동화 (MCP 기반) AI Agent", owner:"이우성", v1:null, v2:"UI 테스트 자동화 / TC 생성",
+            desc:"MCP 기반으로 UI 테스트와 배치 TC 생성·실행을 풀 자동화하는 Agent입니다." },
+      22: { icon:"🔄", title:"반복 업무 자동화 처리 통합 Agent", owner:"이재현", v1:null, v2:"SR 처리 개인 비서 - LLM Wiki 포함",
+            desc:"SR 처리를 돕는 개인 비서 Agent 과제로, LLM Wiki 지식 검색을 포함해 반복 업무를 통합 자동화합니다." },
+      23: { icon:"📝", title:"정기/비정기 정산레퍼런스 추가 대상 검증 및 생성 쿼리 작성, 산출물 자동화 Agent", owner:"이현정", v1:"레퍼런스 개발 자동화", v2:null,
+            desc:"정기/비정기 정산 레퍼런스 추가 대상을 검증하고 생성 쿼리·산출물 작성을 자동화하는 Agent입니다." },
+      24: { icon:"🧾", title:"청구서 파트 당월 개발과제 기준 정보 검증 도우미 Agent : AI게 맞아!", owner:"조영래", v1:null, v2:"레퍼런스 개발 자동화",
+            desc:"청구서 파트의 당월 개발과제 기준 정보를 검증하고 레퍼런스 개발을 자동화하는 Agent 과제입니다." },
+      25: { icon:"💻", title:"넥사크로 Code AI Agent", owner:"한재윤", v1:null, v2:"SVN 변경 사항 식별 및 AI 기반 Check List 검증 자동화",
+            desc:"SVN 변경 사항을 자동 식별하고 AI 기반 체크리스트로 검증을 자동화하는 과제입니다. (기존: 넥사크로 Code Agent)" },
+      26: { icon:"🧮", title:"정산 검증 분석 자동화 Agent", owner:"윤석민", v1:"정산 검증 분석 자동화", v2:null,
+            desc:"정산 결과 검증·분석 작업을 자동화하는 Agent 과제입니다." },
     };
 
-    function fmtSize(b) {
-      if (b >= 1048576) return (b / 1048576).toFixed(1) + " MB";
-      return (b / 1024).toFixed(1) + " KB";
+    const CATEGORIES = [
+      { cls:"cat-analysis", icon:"📋", name:"분석 Agent", nums:[3,8,9,16,17,20] },
+      { cls:"cat-develop",  icon:"🔧", name:"개발 Agent", nums:[2,4,7,10,11,12,13,15,22,23,25] },
+      { cls:"cat-test",     icon:"🧪", name:"테스트 Agent", nums:[6,18,19,21,24,26] },
+      { cls:"cat-common",   icon:"🔀", name:"공통 / 운영 지원 Agent", nums:[1,5,14] },
+    ];
+
+    let sharedFiles = {}; // num -> [{name, size, path}]
+
+    function fmtSize(b) { return b >= 1048576 ? (b/1048576).toFixed(1)+" MB" : (b/1024).toFixed(1)+" KB"; }
+    function rawUrl(path) { return `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/` + path.split("/").map(encodeURIComponent).join("/"); }
+
+    function badgeHtml(m, num, full) {
+      let h = "";
+      if (m.v1) h += `<span class="badge v1" title="${m.v1}">${full ? "1차 투표 과제: "+m.v1 : "1차 투표"}</span>`;
+      if (m.v2) h += `<span class="badge v2" title="${m.v2}">${full ? "2차 투표 과제: "+m.v2 : "2차 투표"}</span>`;
+      if (full && !m.v1 && !m.v2) h += `<span class="badge none">투표 대상 아님</span>`;
+      if (!full && (sharedFiles[num]||[]).length) h += `<span class="badge file">📦 자료</span>`;
+      return h;
     }
 
-    async function load() {
-      const box = document.getElementById("list");
+    function render() {
+      document.getElementById("board").innerHTML = CATEGORIES.map(c => `
+        <div class="category">
+          <div class="cat-head ${c.cls}"><span>${c.icon}</span><span>${c.name}</span><span class="cat-count">${c.nums.length}</span></div>
+          <div class="grid">
+            ${c.nums.map(n => { const m = META[n]; return `
+              <div class="card" onclick="openModal(${n})">
+                <div class="card-icon">${m.icon}</div>
+                <div style="flex:1; min-width:0;">
+                  <div class="card-title">${m.title}</div>
+                  <div class="card-owner">${m.owner}</div>
+                  <div class="badges">${badgeHtml(m, n, false)}</div>
+                </div>
+                <span class="card-num">#${n}</span>
+              </div>`; }).join("")}
+          </div>
+        </div>`).join("");
+    }
+
+    function openModal(n) {
+      const m = META[n];
+      document.getElementById("mTitle").textContent = m.title;
+      document.getElementById("mIcon").textContent = m.icon;
+      document.getElementById("mOwner").textContent = "담당: " + m.owner;
+      document.getElementById("mNum").textContent = "#" + n;
+      document.getElementById("mBadges").innerHTML = badgeHtml(m, n, true);
+      document.getElementById("mDesc").textContent = m.desc;
+      const files = sharedFiles[n] || [];
+      document.getElementById("mFiles").innerHTML = files.length
+        ? files.map(f => `<div class="file-row"><span class="file-name">📄 ${f.name}</span><span class="file-size">${fmtSize(f.size)}</span><a class="btn-dl" href="${rawUrl(f.path)}" download>⬇ 다운로드</a></div>`).join("")
+        : '<div class="nofile">아직 공유된 파일이 없습니다.</div>';
+      document.getElementById("modal").classList.add("active");
+    }
+    function closeModal() { document.getElementById("modal").classList.remove("active"); }
+    document.getElementById("modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+    async function loadFiles() {
       try {
         const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const tree = (await res.json()).tree || [];
-        const groups = {};
-        for (const item of tree) {
+        if (!res.ok) return;
+        for (const item of (await res.json()).tree || []) {
           const m = item.path.match(new RegExp(`^${DIR}/(\\d+)/(.+)$`));
-          if (m && item.type === "blob") {
-            (groups[m[1]] = groups[m[1]] || []).push({ name: m[2], size: item.size, path: item.path });
-          }
+          if (m && item.type === "blob") (sharedFiles[m[1]] = sharedFiles[m[1]] || []).push({ name: m[2], size: item.size, path: item.path });
         }
-        const nums = Object.keys(groups).sort((a, b) => a - b);
-        if (nums.length === 0) {
-          box.innerHTML = '<div class="empty">아직 공유된 파일이 없습니다.<br>팀 대시보드에서 Agent 카드를 눌러 파일을 첨부해 보세요.</div>';
-          return;
-        }
-        box.innerHTML = nums.map(n => {
-          const [name, owner] = (AGENT_META[n] || `Agent #${n}|`).split("|");
-          const rows = groups[n].map(f =>
-            `<div class="file-row">
-               <span class="file-name">📄 ${f.name}</span>
-               <span class="file-size">${fmtSize(f.size)}</span>
-               <a class="btn-dl" href="https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${f.path.split("/").map(encodeURIComponent).join("/")}" download>⬇ 다운로드</a>
-             </div>`).join("");
-          return `<div class="card">
-                    <div class="agent-head">
-                      <span class="agent-num">#${n}</span>
-                      <span class="agent-name">${name}</span>
-                      <span class="agent-owner">${owner}</span>
-                    </div>${rows}
-                  </div>`;
-        }).join("");
-      } catch (e) {
-        box.innerHTML = `<div class="error">목록을 불러오지 못했습니다: ${e.message}<br>잠시 후 새로고침해 주세요.</div>`;
-      }
+        render(); // 📦 배지 갱신
+      } catch (e) { /* 목록 실패해도 대시보드는 표시 */ }
     }
-    load();
+
+    render();
+    loadFiles();
   </script>
 </body>
 </html>
