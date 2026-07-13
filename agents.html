@@ -11,6 +11,8 @@
     header { text-align: center; margin-bottom: 22px; }
     h1 { font-size: 22px; margin-bottom: 6px; }
     .ver { font-size: 12px; font-weight: 600; color: #2f6fed; background: #eef3fd; padding: 3px 9px; border-radius: 9px; vertical-align: middle; }
+    .edit-bar { margin-top: 10px; display: flex; gap: 6px; justify-content: center; }
+    .editing .card-title { outline: 1px dashed #2f6fed; border-radius: 5px; padding: 2px 4px; cursor: text; background: #f6f9ff; }
     .sub { color: #6b7688; font-size: 13px; }
     .category { margin-bottom: 18px; }
     .cat-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; margin-bottom: 10px; font-weight: 700; font-size: 14px; color: #fff; }
@@ -65,6 +67,11 @@
     <header>
       <h1>🤖 빌링서비스2팀 AI Agent 대시보드 <span class="ver">v1.0</span></h1>
       <p class="sub">총 26개 Agent · 카드를 누르면 과제 설명과 공유 자료를 볼 수 있습니다</p>
+      <div class="edit-bar">
+        <button id="editBtn" class="cbtn cbtn-desc" onclick="toggleEdit()">✏️ 제목 편집</button>
+        <button id="saveBtn" class="cbtn cbtn-dl" style="display:none" onclick="saveMeta()">💾 저장</button>
+        <button id="cancelBtn" class="cbtn cbtn-desc" style="display:none" onclick="cancelEdit()">취소</button>
+      </div>
     </header>
     <div id="board"></div>
     <p class="foot">투표 페이지: <a href="index.html">바로가기</a></p>
@@ -177,7 +184,7 @@
               <div class="card" onclick="openModal(${n})">
                 <div class="card-icon">${m.icon}</div>
                 <div style="flex:1; min-width:0;">
-                  <div class="card-title">${m.title}</div>
+                  <div class="card-title" data-num="${n}" ${editMode ? 'contenteditable="true" onclick="event.stopPropagation()"' : ''}>${m.title}</div>
                   <div class="card-owner">${m.owner}</div>
                   ${hasFile ? '<div class="badges"><span class="badge file">📦 자료</span></div>' : ''}
                   <div class="card-btns">
@@ -192,6 +199,7 @@
     }
 
     function openModal(n) {
+      if (editMode) return; // 편집 중에는 모달 비활성
       const m = META[n];
       document.getElementById("mTitle").textContent = m.title;
       document.getElementById("mIcon").textContent = m.icon;
@@ -227,7 +235,80 @@
       } catch (e) { /* 목록 실패해도 대시보드는 표시 */ }
     }
 
+    // ===== 제목 편집 (agents_meta.json 을 GitHub 에 저장) =====
+    const META_PATH = "agents_meta.json";
+    let editMode = false;
+
+    async function loadMeta() {
+      try {
+        const res = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${META_PATH}?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const saved = await res.json();
+        for (const [n, v] of Object.entries(saved)) {
+          if (META[n] && v.title) META[n].title = v.title;
+        }
+        render();
+      } catch (e) { /* 저장본 없으면 기본값 사용 */ }
+    }
+
+    function toggleEdit() {
+      editMode = true;
+      document.body.classList.add("editing");
+      document.getElementById("editBtn").style.display = "none";
+      document.getElementById("saveBtn").style.display = "";
+      document.getElementById("cancelBtn").style.display = "";
+      render();
+      alert("카드의 제목을 직접 클릭해서 고친 뒤 '저장'을 누르세요.");
+    }
+
+    function exitEdit() {
+      editMode = false;
+      document.body.classList.remove("editing");
+      document.getElementById("editBtn").style.display = "";
+      document.getElementById("saveBtn").style.display = "none";
+      document.getElementById("cancelBtn").style.display = "none";
+      render();
+    }
+
+    function cancelEdit() { exitEdit(); }
+
+    async function saveMeta() {
+      // 화면에서 수정된 제목 수집
+      document.querySelectorAll(".card-title[data-num]").forEach(el => {
+        const t = el.textContent.trim();
+        if (t) META[el.dataset.num].title = t;
+      });
+
+      let token = sessionStorage.getItem("gh_edit_token") || "";
+      if (!token) token = (prompt("관리자용 GitHub 토큰을 입력하세요 (이 브라우저 세션에만 유지)") || "").trim();
+      if (!token) return;
+
+      const payload = {};
+      for (const [n, m] of Object.entries(META)) payload[n] = { title: m.title };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+      const api = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${META_PATH}`;
+      const headers = { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" };
+
+      try {
+        let sha = null;
+        const chk = await fetch(`${api}?ref=${BRANCH}`, { headers });
+        if (chk.ok) sha = (await chk.json()).sha;
+        const body = { message: "update agent titles", content, branch: BRANCH };
+        if (sha) body.sha = sha;
+        const put = await fetch(api, { method: "PUT", headers, body: JSON.stringify(body) });
+        if (put.ok) {
+          sessionStorage.setItem("gh_edit_token", token);
+          alert("저장 완료! 다른 사람 화면에는 잠시 후 반영됩니다.");
+          exitEdit();
+        } else {
+          sessionStorage.removeItem("gh_edit_token");
+          alert("저장 실패: " + ((await put.json()).message || put.status));
+        }
+      } catch (e) { alert("저장 오류: " + e.message); }
+    }
+
     render();
+    loadMeta();
     loadFiles();
   </script>
 </body>
