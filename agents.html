@@ -34,7 +34,6 @@
     .cbtn-desc:hover { background: #dce7fb; }
     .cbtn-dl { background: #e5484d; color: #fff; }
     .cbtn-dl:hover { background: #d63a3f; }
-    .cbtn-dl:disabled { background: #f0d4d5; color: #c99; cursor: not-allowed; }
     /* modal */
     .modal { display: none; position: fixed; inset: 0; background: rgba(15,25,45,.45); z-index: 10; align-items: flex-start; justify-content: center; padding: 48px 16px; overflow-y: auto; }
     .modal.active { display: flex; }
@@ -182,7 +181,7 @@
                   ${hasFile ? '<div class="badges"><span class="badge file">📦 자료</span></div>' : ''}
                   <div class="card-btns">
                     <button class="cbtn cbtn-desc" onclick="event.stopPropagation(); openModal(${n})">📖 설명</button>
-                    <button class="cbtn cbtn-dl" ${hasFile ? '' : 'disabled'} onclick="event.stopPropagation(); downloadAgent(${n})">⬇ 다운로드</button>
+                    <button class="cbtn cbtn-dl" onclick="event.stopPropagation(); downloadAgent(${n})">⬇ 다운로드</button>
                   </div>
                 </div>
                 <span class="card-num">#${n}</span>
@@ -209,7 +208,7 @@
 
     function downloadAgent(n) {
       const files = sharedFiles[n] || [];
-      if (files.length === 0) return;
+      if (files.length === 0) { alert("아직 업로드 전입니다."); return; }
       if (files.length === 1) { window.location.href = rawUrl(files[0].path); }
       else { openModal(n); } // 여러 개면 모달에서 선택
     }
