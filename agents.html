@@ -323,8 +323,13 @@
         });
         const data = await res.json();
         if (data.success) {
-          sharedFiles = {}; await loadFiles();
+          // GitHub API 캐시 지연이 있어 목록에 즉시 반영
+          const list = sharedFiles[currentModalAgent] = sharedFiles[currentModalAgent] || [];
+          if (!list.some(f => f.name === data.name)) {
+            list.push({ name: data.name, size: file.size, path: `agents/${currentModalAgent}/${data.name}` });
+          }
           openModal(currentModalAgent);
+          render();
           st.textContent = "업로드 완료!";
         } else { st.textContent = "실패: " + (data.error || res.status); }
       } catch (e) { st.textContent = "오류: " + e.message; }
