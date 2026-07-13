@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>빌링개발팀 AI Agent 자료실</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #0f1420; color: #e8ecf4; min-height: 100vh; padding: 24px 16px; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { font-size: 22px; margin-bottom: 6px; }
+    .sub { color: #9aa4b8; font-size: 13px; }
+    .card { background: #1a2233; border: 1px solid #2a3550; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+    .agent-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .agent-num { background: #2a3550; color: #9ec5ff; font-size: 12px; padding: 2px 8px; border-radius: 8px; }
+    .agent-name { font-weight: 600; font-size: 15px; flex: 1; }
+    .agent-owner { color: #9aa4b8; font-size: 13px; }
+    .file-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #2a3550; }
+    .file-name { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { color: #9aa4b8; font-size: 12px; }
+    .btn-dl { background: #2f6fed; color: #fff; text-decoration: none; font-size: 13px; padding: 6px 14px; border-radius: 8px; white-space: nowrap; }
+    .btn-dl:hover { background: #4a83f0; }
+    .empty, .loading, .error { text-align: center; color: #9aa4b8; padding: 40px 0; }
+    .error { color: #e08c8c; }
+    .foot { text-align: center; margin-top: 24px; font-size: 12px; color: #667; }
+    .foot a { color: #9ec5ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>📦 빌링개발팀 AI Agent 자료실</h1>
+      <p class="sub">팀원들이 공유한 Agent 파일을 다운로드할 수 있습니다. 업로드는 팀 대시보드에서 하세요.</p>
+    </header>
+    <div id="list"><div class="loading">파일 목록 불러오는 중...</div></div>
+    <p class="foot">투표 페이지: <a href="index.html">바로가기</a></p>
+  </div>
+
+  <script>
+    const OWNER = "ax3512", REPO = "AIAGENT", BRANCH = "main", DIR = "agents";
+    // 대시보드와 동일한 Agent 이름/담당자
+    const AGENT_META = {
+      1:"메일 Due-Date 알람 제공 AI Agent|이성규", 2:"코드 품질향상 및 보안 준수 자동화 Agent|권희열",
+      3:"Spring Codebase 분석 AI Agent|김남진", 4:"사용자 메뉴얼 작성 Agent|문향은",
+      5:"업무 지식 지존 검색 AI Agent|이태규", 6:"IA 테스트케이스 검증 AI Agent|임성식",
+      7:"개발 SQL 튜닝 및 검증 AI Agent / 운영 SR처리 Agent|김건표", 8:"개발 요구사항 영향도 검토 Agent|김예솔",
+      9:"영향도 분석 AI Agent (grep-AI)|박진현", 10:"DB 신규 및 변경신청 및 인터페이스 정의서 생성 AI Agent|임근혜",
+      11:"유무선 정산 신규 상품 개발 자동화|임진환", 12:"조정사유(청구할인) 코드 레퍼런스 생성 및 검증 AI Agent|지수환",
+      13:"정기 운영작업 쿼리 생성 및 자료추출 AI Agent|권혜원", 14:"IA기반 KMS 지식 현행화 Agent|김자은",
+      15:"Bill 개발 도우미 AI Agent|김재혁", 16:"IA요구사항 분석을 통한 상품 레퍼런스 생성 및 검증 AI Agent|박래준",
+      17:"IA 작성 지원 AI Agent|박예겸", 18:"비바체 내 신규요금제 정산기준정보 엑셀 자동 검증 에이전트|김무성",
+      19:"품질점검 Agent|김현아", 20:"AI 기반 데이터베이스 테이블 자동 추출 에이전트|박세원",
+      21:"UI & 배치 TC TEST FULL 자동화 (MCP 기반) AI Agent|이우성", 22:"반복 업무 자동화 처리 통합 Agent|이재현",
+      23:"정기/비정기 정산레퍼런스 추가 대상 검증 및 생성 쿼리 작성, 산출물 자동화 Agent|이현정",
+      24:"청구서 파트 당월 개발과제 기준 정보 검증 도우미 Agent : AI게 맞아!|조영래",
+      25:"넥사크로 Code AI Agent|한재윤", 26:"정산 검증 분석 자동화 Agent|윤석민",
+    };
+
+    function fmtSize(b) {
+      if (b >= 1048576) return (b / 1048576).toFixed(1) + " MB";
+      return (b / 1024).toFixed(1) + " KB";
+    }
+
+    async function load() {
+      const box = document.getElementById("list");
+      try {
+        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const tree = (await res.json()).tree || [];
+        const groups = {};
+        for (const item of tree) {
+          const m = item.path.match(new RegExp(`^${DIR}/(\\d+)/(.+)$`));
+          if (m && item.type === "blob") {
+            (groups[m[1]] = groups[m[1]] || []).push({ name: m[2], size: item.size, path: item.path });
+          }
+        }
+        const nums = Object.keys(groups).sort((a, b) => a - b);
+        if (nums.length === 0) {
+          box.innerHTML = '<div class="empty">아직 공유된 파일이 없습니다.<br>팀 대시보드에서 Agent 카드를 눌러 파일을 첨부해 보세요.</div>';
+          return;
+        }
+        box.innerHTML = nums.map(n => {
+          const [name, owner] = (AGENT_META[n] || `Agent #${n}|`).split("|");
+          const rows = groups[n].map(f =>
+            `<div class="file-row">
+               <span class="file-name">📄 ${f.name}</span>
+               <span class="file-size">${fmtSize(f.size)}</span>
+               <a class="btn-dl" href="https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${f.path.split("/").map(encodeURIComponent).join("/")}" download>⬇ 다운로드</a>
+             </div>`).join("");
+          return `<div class="card">
+                    <div class="agent-head">
+                      <span class="agent-num">#${n}</span>
+                      <span class="agent-name">${name}</span>
+                      <span class="agent-owner">${owner}</span>
+                    </div>${rows}
+                  </div>`;
+        }).join("");
+      } catch (e) {
+        box.innerHTML = `<div class="error">목록을 불러오지 못했습니다: ${e.message}<br>잠시 후 새로고침해 주세요.</div>`;
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
