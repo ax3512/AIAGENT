@@ -60,7 +60,7 @@
   <div class="wrap">
     <header>
       <h1>🤖 빌링개발팀 AI Agent 대시보드</h1>
-      <p class="sub">총 26개 Agent · 카드를 누르면 과제 설명과 공유 자료를 볼 수 있습니다 · 파일 업로드는 팀 대시보드에서</p>
+      <p class="sub">총 26개 Agent · 카드를 누르면 과제 설명과 공유 자료를 볼 수 있습니다</p>
     </header>
     <div id="board"></div>
     <p class="foot">투표 페이지: <a href="index.html">바로가기</a></p>
@@ -164,9 +164,6 @@
 
     function badgeHtml(m, num, full) {
       let h = "";
-      if (m.v1) h += `<span class="badge v1" title="${m.v1}">${full ? "1차 투표 과제: "+m.v1 : "1차 투표"}</span>`;
-      if (m.v2) h += `<span class="badge v2" title="${m.v2}">${full ? "2차 투표 과제: "+m.v2 : "2차 투표"}</span>`;
-      if (full && !m.v1 && !m.v2) h += `<span class="badge none">투표 대상 아님</span>`;
       if (!full && (sharedFiles[num]||[]).length) h += `<span class="badge file">📦 자료</span>`;
       return h;
     }
