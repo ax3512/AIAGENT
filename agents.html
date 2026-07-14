@@ -191,7 +191,7 @@
                   ${hasFile ? '<div class="badges"><span class="badge file">📦 자료</span></div>' : ''}
                   <div class="card-btns">
                     <button class="cbtn cbtn-desc" onclick="event.stopPropagation(); openModal(${n})">📖 설명</button>
-                    <button class="cbtn cbtn-dl" onclick="event.stopPropagation(); downloadAgent(${n})">⬇ 다운로드</button>
+                    <button class="cbtn cbtn-dl" onclick="event.stopPropagation(); downloadAgent(${n})">${editMode ? '🔗 링크 수정' : '⬇ 다운로드'}</button>
                   </div>
                 </div>
                 <span class="card-num">#${n}</span>
@@ -213,14 +213,31 @@
       document.getElementById("mDesc").textContent = m.desc;
       const files = sharedFiles[n] || [];
       let rows = files.map(f => `<div class="file-row"><span class="file-name">📄 ${f.name}</span><span class="file-size">${fmtSize(f.size)}</span><a class="btn-dl" href="${rawUrl(f.path)}" download>⬇ 다운로드</a></div>`).join("");
-      if (m.link) rows = `<div class="file-row"><span class="file-name">🔗 공유 저장소 (SharePoint)</span><a class="btn-dl" href="${m.link}" target="_blank">⬇ 다운로드</a></div>` + rows;
+      if (m.link) rows = `<div class="file-row"><span class="file-name">🔗 공유 저장소 (SharePoint)</span><a class="btn-dl" href="${directLink(m.link)}" target="_blank">⬇ 다운로드</a></div>` + rows;
       document.getElementById("mFiles").innerHTML = rows || '<div class="nofile">아직 공유된 파일이 없습니다.</div>';
       document.getElementById("modal").classList.add("active");
     }
     function closeModal() { document.getElementById("modal").classList.remove("active"); }
 
+    // SharePoint/OneDrive 공유 링크를 즉시 다운로드 링크로 변환
+    function directLink(url) {
+      if (/sharepoint\.com|1drv\.ms|onedrive/.test(url) && !/download=1/.test(url)) {
+        return url + (url.includes("?") ? "&" : "?") + "download=1";
+      }
+      return url;
+    }
+
+    function editLink(n) {
+      const cur = META[n].link || "";
+      const v = prompt("다운로드 링크 URL을 입력하세요 (비우면 링크 제거)", cur);
+      if (v === null) return;
+      META[n].link = v.trim() || null;
+      render();
+    }
+
     function downloadAgent(n) {
-      if (META[n].link) { window.open(META[n].link, "_blank"); return; } // 외부(SharePoint 등) 다운로드 링크
+      if (editMode) { editLink(n); return; } // 편집 모드에서는 링크 수정
+      if (META[n].link) { window.open(directLink(META[n].link), "_blank"); return; } // 외부(SharePoint 등) 다운로드 링크
       const files = sharedFiles[n] || [];
       if (files.length === 0) { alert("아직 업로드 전입니다."); return; }
       if (files.length === 1) { window.location.href = rawUrl(files[0].path); }
@@ -255,7 +272,9 @@
         }
         const saved = await res.json();
         for (const [n, v] of Object.entries(saved)) {
-          if (META[n] && v.title) META[n].title = v.title;
+          if (!META[n]) continue;
+          if (v.title) META[n].title = v.title;
+          if (v.link !== undefined) META[n].link = v.link || null;
         }
         render();
       } catch (e) { /* 저장본 없으면 기본값 사용 */ }
@@ -268,7 +287,7 @@
       document.getElementById("saveBtn").style.display = "";
       document.getElementById("cancelBtn").style.display = "";
       render();
-      alert("카드의 제목을 직접 클릭해서 고친 뒤 '저장'을 누르세요.");
+      alert("제목은 카드에서 직접 클릭해 수정, 다운로드 링크는 '🔗 링크 수정' 버튼으로 입력한 뒤 '저장'을 누르세요.");
     }
 
     function exitEdit() {
@@ -291,7 +310,10 @@
         if (t) META[el.dataset.num].title = t;
       });
       const titles = {};
-      for (const [n, m] of Object.entries(META)) titles[n] = { title: m.title };
+      for (const [n, m] of Object.entries(META)) {
+        titles[n] = { title: m.title };
+        if (m.link) titles[n].link = m.link;
+      }
 
       try {
         const res = await fetch(`${PROXY}/save-meta`, {
