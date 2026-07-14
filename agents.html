@@ -13,6 +13,7 @@
     .ver { font-size: 12px; font-weight: 600; color: #2f6fed; background: #eef3fd; padding: 3px 9px; border-radius: 9px; vertical-align: middle; }
     .edit-bar { margin-top: 10px; display: flex; gap: 6px; justify-content: center; }
     .editing .card-title { outline: 1px dashed #2f6fed; border-radius: 5px; padding: 2px 4px; cursor: text; background: #f6f9ff; }
+    .desc-editing { outline: 1px dashed #2f6fed; border-radius: 6px; padding: 6px 8px; cursor: text; background: #f6f9ff; min-height: 60px; }
     .sub { color: #6b7688; font-size: 13px; }
     .category { margin-bottom: 18px; }
     .cat-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; margin-bottom: 10px; font-weight: 700; font-size: 14px; color: #fff; }
@@ -201,10 +202,13 @@
     }
 
     function openModal(n) {
-      if (editMode) return; // 편집 중에는 모달 비활성
+      applyDescEdit(); // 다른 카드 설명 수정 중이었다면 먼저 반영
       currentModalAgent = n;
       document.getElementById("upStatus").textContent = "";
       const m = META[n];
+      const descEl = document.getElementById("mDesc");
+      descEl.contentEditable = editMode ? "true" : "false";
+      descEl.classList.toggle("desc-editing", editMode);
       document.getElementById("mTitle").textContent = m.title;
       document.getElementById("mIcon").textContent = m.icon;
       document.getElementById("mOwner").textContent = "담당: " + m.owner;
@@ -217,7 +221,17 @@
       document.getElementById("mFiles").innerHTML = rows || '<div class="nofile">아직 공유된 파일이 없습니다.</div>';
       document.getElementById("modal").classList.add("active");
     }
-    function closeModal() { document.getElementById("modal").classList.remove("active"); }
+    // 편집 모드에서 모달 설명 수정 내용을 META 에 반영
+    function applyDescEdit() {
+      if (!editMode || currentModalAgent == null) return;
+      const t = document.getElementById("mDesc").textContent.trim();
+      if (t) META[currentModalAgent].desc = t;
+    }
+
+    function closeModal() {
+      applyDescEdit();
+      document.getElementById("modal").classList.remove("active");
+    }
 
     // SharePoint/OneDrive 공유 링크를 즉시 다운로드 링크로 변환
     function directLink(url) {
@@ -275,6 +289,7 @@
           if (!META[n]) continue;
           if (v.title) META[n].title = v.title;
           if (v.link !== undefined) META[n].link = v.link || null;
+          if (v.desc) META[n].desc = v.desc;
         }
         render();
       } catch (e) { /* 저장본 없으면 기본값 사용 */ }
@@ -287,7 +302,7 @@
       document.getElementById("saveBtn").style.display = "";
       document.getElementById("cancelBtn").style.display = "";
       render();
-      alert("제목은 카드에서 직접 클릭해 수정, 다운로드 링크는 '🔗 링크 수정' 버튼으로 입력한 뒤 '저장'을 누르세요.");
+      alert("제목: 카드에서 직접 클릭해 수정\n설명: '📖 설명' 버튼으로 모달을 열어 직접 수정\n링크: '🔗 링크 수정' 버튼으로 입력\n마치면 '저장'을 누르세요.");
     }
 
     function exitEdit() {
@@ -310,8 +325,9 @@
         if (t) META[el.dataset.num].title = t;
       });
       const titles = {};
+      applyDescEdit(); // 모달이 열린 채 저장해도 설명 반영
       for (const [n, m] of Object.entries(META)) {
-        titles[n] = { title: m.title };
+        titles[n] = { title: m.title, desc: m.desc };
         if (m.link) titles[n].link = m.link;
       }
 
