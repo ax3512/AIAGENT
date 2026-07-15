@@ -24,7 +24,7 @@
     "desc": "배포 문서를 근거로 테스트케이스를 자동 생성·검증해 배포 전 테스트 누락을 방지하는 Agent입니다."
   },
   "7": {
-    "title": "엑jdk 및 쿼리 마이그레이션 고도화 자동화",
+    "title": "jdk 및 쿼리 마이그레이션 고도화 자동화",
     "link": "https://ktcorp365-my.sharepoint.com/:u:/g/personal/ax3512_kt_com/IQBpr6iHN3kYT6EzsOFRI88aAftp8iUy9FQJmwxmnc4nxPI",
     "desc": "JDK 버전업 시 필요한 소스 수정 포인트를 자동 식별·변환하는 버전업 자동화 과제입니다."
   },
@@ -63,6 +63,7 @@
   },
   "17": {
     "title": "배포 누락 방지 Agent",
+    "link": "https://ktcorp365-my.sharepoint.com/:u:/g/personal/yegyeom_park_kt_com/IQCiXO_ZutTfQ75-2KoVhkkmATOcQ0LJ3faf3RgLA0ZNq4Q",
     "desc": "배포 대상 파일·절차를 자동 점검해 배포 누락을 방지하는 Agent 과제입니다."
   },
   "19": {
