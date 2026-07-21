@@ -46,7 +46,7 @@
     "desc": "유무선 정산 신규 상품(레퍼런스) 개발을 자동화하는 플랫폼 과제입니다. 개발 단계별 산출물 생성을 지원합니다."
   },
   "12": {
-    "title": "조정사유 채번과제 개발/검증 Agent",
+    "title": "레퍼런스 개발 자동화",
     "desc": "조정사유(청구할인) 코드 레퍼런스를 자동 생성·검증하는 레퍼런스 개발 자동화 Agent입니다."
   },
   "14": {
@@ -71,8 +71,9 @@
     "desc": "SQL 튜닝 포인트를 자동 분석·제안해 개발 품질을 높이는 SQL 튜닝 지원 Agent 과제입니다."
   },
   "20": {
-    "title": "정산 특화 산출물 생성 간소화 Agent",
-    "desc": "정산 업무에 특화된 산출물 생성을 간소화하는 Agent 과제입니다."
+    "title": "MVNO 정산 특화 배치/UI 소스 분석 기반 산출물 생성 간소화 Agent",
+    "link": "https://ktcorp365-my.sharepoint.com/:u:/g/personal/sw_park_kt_com/IQAHW1_RHA_xTY9Z15fkEo9RATfKteiFOw8vIeCqGhL96o8?e=RR30yf",
+    "desc": "MVNO 정산 업무에 특화된 산출물 생성을 간소화하는 Agent 과제입니다.배치와  UI의 소스를 기반으로 분석하여 관련된 INPUT/OUTPUT 테이블 목록 산출물 리스트를 자동 생성하는 Agent 입니다."
   },
   "21": {
     "title": "UI 테스트 자동화 / TC 생성",
